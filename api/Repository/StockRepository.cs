@@ -43,8 +43,8 @@ namespace api.Repository
         }
 
         public async Task<List<Stock>> GetAllAsync(QueryObject query)
-        {
-            var stock =  _context.Stock.Include(c => c.Comments).AsQueryable();
+        {//we use then include because user is double nested and we need this to get to him 
+            var stock =  _context.Stock.Include(c => c.Comments).ThenInclude(a => a.AppUser).AsQueryable();
 
             //filtering
             if(!string.IsNullOrWhiteSpace(query.CompanyName))
@@ -77,6 +77,11 @@ namespace api.Repository
         public async Task<Stock?> GetByIdAsync(int id)
         {
             return await _context.Stock.Include(c => c.Comments).FirstOrDefaultAsync(i => i.Id == id);
+        }
+
+        public async Task<Stock> GetBySymbolAsync(string symbol)
+        {
+            return await _context.Stock.FirstOrDefaultAsync(s => s.Symbol == symbol);
         }
 
         public Task<bool> StockExists(int id)
